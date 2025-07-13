@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>To Do List</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-image: url('cenario2.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Caprasimo", serif;
+      padding-top: 25px;
+      padding-bottom: 25px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      font-family: "Caprasimo", serif;
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 1px solid white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 35%;
+      min-width: 400px;
+      min-height: 400px;
+      padding: 15px;
+      border-radius: 15px;
+      gap: 25px;
+      box-shadow: 0px 10px 40px -12px;
+      overflow-wrap: break-word;
+      overflow-y: auto;
+      max-height: calc(100vh - 60px);
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      font-size: 28px;
+    }
+
+    .number-tasks {
+      display: flex;
+      background-color: rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 500px;
+      padding: 25px;
+      border-radius: 25px;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    h3 {
+      color: white;
+    }
+
+    .div-numbers {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 20px 10px;
+      border-radius: 30px;
+    }
+
+    .insertion {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-tasks {
+      flex: 1;
+      padding: 15px;
+      background: white;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      box-shadow: 0px 10px 40px -12px;
+      font-family: "Caprasimo", serif;
+    }
+
+    .add-tasks {
+      width: 15%;
+      max-width: 70px;
+      padding: 15px;
+      border-radius: 50px;
+      background: red;
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0px 10px 40px -12px;
+    }
+
+    .element1-img {
+      display: flex;
+      width: 80%;
+    }
+
+    ul {
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      width: 100%;
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0px 10px 40px -12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .message {
+      color: white;
+    }
+
+    .container-li {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    span {
+      flex: 1;
+      text-align: center;
+      font-size: 20px;
+      word-break: break-word;
+    }
+
+    .concluide-button,
+    .edite-button,
+    .remove-button {
+      width: 40px;
+      height: 40px;
+      padding: 5px;
+      border-radius: 50px;
+      background: none;
+      color: white;
+      border: black solid 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0px 10px 40px -12px;
+    }
+    .img-check,
+    .img-remove,
+    .img-edite {
+      width: 85%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>To Do List</h1>
+    <div class="number-tasks">
+      <h3 class="msg-number-tasks">Create a task</h3>
+      <div class="div-numbers">
+        <p class="numbers">0 / 0</p>
+      </div>
+    </div>
+
+    <div class="insertion">
+      <input class="input-tasks" placeholder="Add new task...">
+      <button onclick="addTasks()" class="add-tasks">+</button>
+    </div>
+    <img class="element1-img" src="element1.png" />
+    <ul class="ul-tasks"></ul>
+    <h2 class="message"></h2>
+  </div>
+
+  <script>
+    let arrayTasks = [];
+    let tasksConcluides = 0;
+    const divNumbers = document.querySelector('.div-numbers');
+    const msgNumberTasks = document.querySelector('.msg-number-tasks');
+    const element1Img = document.querySelector('.element1-img');
+
+    function saveToLocalStorage() {
+      localStorage.setItem('tasks', JSON.stringify(arrayTasks));
+      localStorage.setItem('tasksConcluides', tasksConcluides);
+    }
+
+    function loadFromLocalStorage() {
+      const storedTasks = localStorage.getItem('tasks');
+      const storedConcluides = localStorage.getItem('tasksConcluides');
+
+      if (storedTasks) {
+        arrayTasks = JSON.parse(storedTasks);
+        tasksConcluides = Number(storedConcluides) || 0;
+        updateStatus();
+        printTask();
+      }
+    }
+
+    function updateStatus() {
+      const total = arrayTasks.length;
+      divNumbers.innerHTML = tasksConcluides + ' / ' + total;
+
+      if (total === 0) {
+        msgNumberTasks.innerHTML = 'Create a task';
+        element1Img.style.display = 'flex';
+      } else if (tasksConcluides === total) {
+        msgNumberTasks.innerHTML = 'Tasks completed';
+        element1Img.style.display = 'none';
+      } else {
+        msgNumberTasks.innerHTML = 'Keep it up';
+        element1Img.style.display = 'none';
+      }
+    }
+
+    function addTasks() {
+      let message = document.querySelector('.message');
+      const input = document.querySelector('.input-tasks');
+      const inputValue = input.value.toLowerCase();
+
+      if (inputValue == "") {
+        message.textContent = "Error! Please enter a value!";
+        return;
+      }
+
+      arrayTasks.push({
+        text: inputValue,
+        done: false
+      });
+
+      input.value = '';
+      message.textContent = "";
+
+      saveToLocalStorage();
+      updateStatus();
+      printTask();
+    }
+
+    function printTask() {
+      const ulTasks = document.querySelector('.ul-tasks');
+      ulTasks.innerHTML = "";
+
+      arrayTasks.forEach((task, i) => {
+        const create = (tag) => document.createElement(tag);
+
+        const li = create('li');
+        const containerLi = create('div');
+        const buttonConcluide = create('button');
+        const textTask = create('span');
+        const buttonEdite = create('button');
+        const buttonRemove = create('button');
+        const imgEdite = create('img');
+        const imgRemove = create('img');
+
+        imgEdite.src = 'edite.png';
+        imgRemove.src = 'remove.png';
+        textTask.textContent = task.text;
+
+        if (task.done) {
+          const imgCheck = document.createElement("img");
+          imgCheck.src = 'v-icon.png';
+          imgCheck.className = 'img-check';
+          buttonConcluide.appendChild(imgCheck);
+        }
+
+        containerLi.className = 'container-li';
+        buttonConcluide.className = 'concluide-button';
+        buttonEdite.className = 'edite-button';
+        buttonRemove.className = 'remove-button';
+        imgRemove.className = 'img-remove';
+        imgEdite.className = 'img-edite';
+
+        li.appendChild(containerLi);
+        containerLi.append(buttonConcluide, textTask, buttonRemove, buttonEdite);
+        buttonEdite.appendChild(imgEdite);
+        buttonRemove.appendChild(imgRemove);
+        ulTasks.appendChild(li);
+
+        buttonRemove.onclick = () => removeTask(i);
+        buttonEdite.onclick = () => editeTask(i);
+        buttonConcluide.onclick = () => concluideTask(i);
+      });
+    }
+
+    function removeTask(i) {
+      if (arrayTasks[i].done) {
+        tasksConcluides--;
+      }
+
+      arrayTasks.splice(i, 1);
+
+      saveToLocalStorage();
+      updateStatus();
+      printTask();
+    }
+
+    function editeTask(i) {
+      const taskEdited = prompt('Edit your task:', arrayTasks[i].text);
+      if (taskEdited && taskEdited.trim() !== '') {
+        arrayTasks[i].text = taskEdited.trim();
+        saveToLocalStorage();
+        printTask();
+      }
+    }
+
+    function concluideTask(i) {
+      if (arrayTasks[i].done) return;
+      arrayTasks[i].done = true;
+      tasksConcluides++;
+
+      saveToLocalStorage();
+      updateStatus();
+      printTask();
+    }
+
+    loadFromLocalStorage();
+  </script>
+</body>
+</html>
